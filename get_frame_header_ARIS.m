@@ -4,14 +4,24 @@ function header = get_frame_header_ARIS(fid,resolution,serialnumber)
 % resolution (frequency mode) Lo = 0  Hi = 1
 % serialnumber = serial number of sonar providing this data
 
-fseek(fid,1024,'bof');
+%fseek(fid,1024,'bof');
+%fseek(fid,1024,'cof');
 initialposition = ftell(fid); %get initial position of file pointer
 header.framenumber          = fread(fid,1,'uint');
 header.frametime           = fread(fid,1,'uint64'); % Recording timestamp
-header.frametime = floor(header.frametime/1000);	% Correcting padding
+%header.frametime = floor(header.frametime/1000);	% Correcting padding
+%datestr(header.matlabtime)
+
 header.version             = fread(fid,1,'uint');
 header.status              = fread(fid,1,'uint');
 header.sonartimestamp      = fread(fid,1,'uint64');
+
+%header.matlabtime = datetime(header.frametime*10^-6, 'ConvertFrom', 'posixtime');
+header.matlabtime = datetime(header.sonartimestamp*10^-6, 'ConvertFrom', 'posixtime');
+
+%st = datetime(header.sonartimestamp*10^-6, 'ConvertFrom', 'posixtime');
+%datestr(st)
+
 header.tsday               = fread(fid,1,'uint');
 header.tshour              = fread(fid,1,'uint');
 header.tsminute            = fread(fid,1,'uint');

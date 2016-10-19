@@ -100,14 +100,26 @@ else
 end
 data.frame=frame;
 data.receivergain=fileheader.receivergain;
-try
-    data.datenum =datenum(char(fileheader.date(16:end)'),'yyyy-mm-dd_HHMMSS');
-catch
-    data.datenum =NaN;
+
+% if(data.version~=5) % If not the ARIS file format (the ARIS datenum is read in the get_frame_header_ARIS)
+%     data.datenum =datenum(frameheader.year,frameheader.month,frameheader.day,frameheader.hour,...
+%         frameheader.minute,frameheader.second+header.hsecond/100);
+% end
+if(data.version==5) % If ARIS file format the ARIS datenum is read in the get_frame_header_ARIS
+    data.timestamp   = frameheader.matlabtime;
+    data.datenum     = datenum(frameheader.matlabtime);
+    data.framenumber = frameheader.framenumber;
+else
+    data.datenum =datenum(frameheader.year,frameheader.month,frameheader.day,frameheader.hour,...
+        frameheader.minute,frameheader.second+frameheader.hsecond/100);
 end
+
+
 data.flag           = 0; %establish a flag entry for get_new_image.m
 data.framerate      = frameheader.framerate;
-data.timestamp      = frameheader.frametime;
+data.framenumber    = frameheader.framenumber;
+% data.timestamp      = frameheader.matlabtime;%frameheader.frametime;
+% data.datenum        = datenum(frameheader.matlabtime);
 data.depth          = frameheader.depth;
 data.compassheading = frameheader.compassheading;
 data.compasspitch   = frameheader.compasspitch;

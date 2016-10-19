@@ -9,6 +9,7 @@ numbytes= data.fileheaderlength + (framenumber -1)*...
     (data.frameheaderlength + datalength);
 status=fseek(data.fid,numbytes,'bof');
 resolution=(data.numbeams-48)/96;
+
 switch data.version
     case 0
         header=get_frame_header_ddf01(data.fid,resolution);
@@ -45,17 +46,10 @@ else
     frame=frame'; % Assume inverted sonar
 end
 data.frame=frame;
-
-if(data.version==5) %ARIS file format
-    try
-        % Date is not correctly read from the ARIS file though this should
-        % not be a problem for rendering the videos
-        data.datenum = datenum(header.yeargps,header.monthgps,header.daygps,...
-            header.hourgps,header.minutegps,header.secondgps+header.hsecondgps/100);
-    catch
-        data.datenum = NaN;
-    end
-    data.framerate = header.framerate;
+if(data.version==5) % If ARIS file format the ARIS datenum is read in the get_frame_header_ARIS
+    data.timestamp   = header.matlabtime;
+    data.datenum     = datenum(header.matlabtime);
+    data.framenumber = header.framenumber;
 else
     data.datenum =datenum(header.year,header.month,header.day,header.hour,...
         header.minute,header.second+header.hsecond/100);
